@@ -36,6 +36,10 @@ class InvalidAudioTTSAdapter(MockTTSAdapter):
         return str(p)
 
 
+class ReferenceFreeTTSAdapter(MockTTSAdapter):
+    requires_reference_audio = False
+
+
 class TestTTSAdapterFactoryRegistry:
     def test_all_registered_adapters_present(self):
         assert "gpt-sovits" in TTSAdapterFactory._adapters
@@ -191,6 +195,17 @@ class TestTTSManagerWithMock:
         mgr.set_tts_adapter(mock_tts_adapter)
         result = mgr.generate_tts(text="Hello", ref_audio_path=None)
         assert result == ""
+        mgr.shutdown()
+
+    def test_generate_tts_without_ref_audio_for_reference_free_adapter(self, tmp_path):
+        adapter = ReferenceFreeTTSAdapter()
+        mgr = TTSManager()
+        mgr.set_tts_adapter(adapter)
+        mgr.audio_cache_dir = tmp_path
+        result = mgr.generate_tts(text="你好", ref_audio_path=None)
+        assert result == str(tmp_path / "0.wav")
+        assert Path(result).read_bytes() == b"fake audio data"
+        assert len(adapter.call_history) == 1
         mgr.shutdown()
 
     def test_generate_tts_retries_empty_audio_result(self):

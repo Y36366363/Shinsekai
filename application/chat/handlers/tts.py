@@ -243,7 +243,12 @@ class DefaultCharacterTtsHandler(MessageHandler):
                         )
                         return
 
-                ref_audio_path = Path(character_config.refer_audio_path).resolve().as_posix()
+                configured_ref_audio = str(character_config.refer_audio_path or "").strip()
+                ref_audio_path = (
+                    Path(configured_ref_audio).resolve().as_posix()
+                    if configured_ref_audio
+                    else ""
+                )
                 prompt_text = character_config.prompt_text
                 try:
                     if sprite_id < 0:

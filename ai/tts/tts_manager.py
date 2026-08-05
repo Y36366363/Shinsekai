@@ -116,7 +116,10 @@ class TTSManager:
             if self.voice_language == 'ja' and (character_name == "狛枝凪斗" or character_name == "仆役" or character_name == "小狛枝"):
                 text = text_processor.replace_watashi(text)
 
-        if not ref_audio_path:
+        requires_reference_audio = bool(
+            getattr(self.tts_adapter, "requires_reference_audio", True)
+        )
+        if not ref_audio_path and requires_reference_audio:
             print("No reference audio provided")
             return ''
 

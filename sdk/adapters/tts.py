@@ -13,6 +13,10 @@ class TTSAdapter(ABC):
           ``tts_server_url``, ``gpt_sovits_work_path``); this base does not declare them.
     """
 
+    # Reference/voice-cloning engines need a character audio sample. Standard
+    # preset-voice services can override this to synthesize directly from text.
+    requires_reference_audio: bool = True
+
     @classmethod
     def get_config_schema(cls) -> dict[str, dict]:
         """Metadata for adapter-specific options; empty ``{}`` means none."""

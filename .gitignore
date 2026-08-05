@@ -30,6 +30,8 @@
 # 插件目录 / Plugins directory
 /plugins/*
 !/plugins/__init__.py
+!/plugins/openai_standard_tts/
+!/plugins/openai_standard_tts/**
 # AI模型权重文件 / AI model weight files
 **/*.onnx
 **/*.pt

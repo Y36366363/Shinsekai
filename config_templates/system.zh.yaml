@@ -1,0 +1,4 @@
+ui_language: zh_CN
+voice_language: zh
+asr_provider: vosk
+asr_language: zh

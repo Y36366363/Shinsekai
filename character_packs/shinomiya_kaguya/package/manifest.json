@@ -1,0 +1,9 @@
+{
+  "format": "shinsekai-character-pack",
+  "character": "四宫辉夜",
+  "sprite_prefix": "shinomiya_kaguya",
+  "version": "0.1.0",
+  "original_paths": {},
+  "asset_notice": "The included sprites are original AI-generated placeholders and are not official anime assets.",
+  "voice_notice": "No voice-clone model or voice actor recording is included."
+}
