@@ -41,10 +41,10 @@ if [ -x "$VENV_DIR/bin/python" ]; then
     echo "使用项目环境: .venv"
 else
     CONDA_CMD=""
-    if CONDA_CMD="$(find_conda)" && conda_env_exists "$CONDA_CMD"; then
+    if [ "${SHINSEKAI_USE_CONDA:-0}" = "1" ] && CONDA_CMD="$(find_conda)" && conda_env_exists "$CONDA_CMD"; then
         PYTHON_CMD=("$CONDA_CMD" run -n "$CONDA_ENV_NAME" python)
         echo "使用 Conda 环境: $CONDA_ENV_NAME"
-    elif CONDA_CMD="$(find_conda)"; then
+    elif [ "${SHINSEKAI_USE_CONDA:-0}" = "1" ] && CONDA_CMD="$(find_conda)"; then
         echo "正在创建 Conda 环境: $CONDA_ENV_NAME"
         if "$CONDA_CMD" env create -f environment.yml \
             --override-channels \
