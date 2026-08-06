@@ -73,7 +73,17 @@ fi
 
 say "检查前端"
 if ! command -v pnpm >/dev/null 2>&1; then
-    echo "错误：找不到 pnpm。请先在 Cursor 终端安装 Node.js 和 pnpm。"
+    if command -v corepack >/dev/null 2>&1; then
+        corepack enable pnpm >/dev/null 2>&1 || true
+    fi
+fi
+if ! command -v pnpm >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+    echo "未找到 pnpm，正在从镜像自动安装..."
+    corepack disable >/dev/null 2>&1 || true
+    npm install --global pnpm@latest-11 --registry=https://registry.npmmirror.com
+fi
+if ! command -v pnpm >/dev/null 2>&1; then
+    echo "错误：找不到 pnpm。请确认 Node.js 已安装后重新运行此脚本。"
     exit 1
 fi
 cd frontend
