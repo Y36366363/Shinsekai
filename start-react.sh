@@ -31,6 +31,9 @@ elif [ -f "runtime/python.exe" ]; then
 elif [ "${CONDA_DEFAULT_ENV:-}" = "$CONDA_ENV_NAME" ] && [ -n "${CONDA_PREFIX:-}" ] && [ -x "$CONDA_PREFIX/bin/python" ]; then
     echo "Embedded Python not found, using active conda env ${CONDA_ENV_NAME}..."
     PYTHON_CMD=("$CONDA_PREFIX/bin/python")
+elif [ -x ".venv/bin/python" ]; then
+    echo "Embedded Python not found, using project environment .venv..."
+    PYTHON_CMD=(".venv/bin/python")
 elif CONDA_CMD="$(find_conda)"; then
     echo "Embedded Python not found, using conda env ${CONDA_ENV_NAME}..."
     PYTHON_CMD=("$CONDA_CMD" run -n "$CONDA_ENV_NAME" python)
