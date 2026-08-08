@@ -71,6 +71,13 @@ else
     fi
 fi
 
+if [ "${PYTHON_CMD[0]}" = "$VENV_DIR/bin/python" ] && [ ! -f "$VENV_DIR/.requirements-installed" ]; then
+    say "安装 Python 依赖"
+    "${PYTHON_CMD[@]}" -m pip install -r requirements.txt \
+        -i https://pypi.tuna.tsinghua.edu.cn/simple
+    touch "$VENV_DIR/.requirements-installed"
+fi
+
 say "检查前端"
 if ! command -v pnpm >/dev/null 2>&1; then
     if command -v corepack >/dev/null 2>&1; then

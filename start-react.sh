@@ -5,6 +5,17 @@ cd "$SCRIPT_DIR"
 
 CONDA_ENV_NAME="${SHINSEKAI_CONDA_ENV:-shinsekai}"
 
+# First launch is self-bootstrapping: install dependencies and build the UI
+# when the project has not been prepared yet.
+if [ "${SHINSEKAI_SKIP_SETUP:-0}" != "1" ] && {
+    [ ! -x ".venv/bin/python" ] ||
+    [ ! -d "frontend/node_modules" ] ||
+    [ ! -d "frontend/dist" ];
+}; then
+    echo "首次运行：正在自动准备项目环境..."
+    SHINSEKAI_SKIP_SETUP=1 bash scripts/setup_local.sh
+fi
+
 find_conda() {
     if [ -n "${CONDA_EXE:-}" ] && [ -x "$CONDA_EXE" ]; then
         printf '%s\n' "$CONDA_EXE"

@@ -72,9 +72,9 @@ cd Shinsekai
 
 ### macOS 一键设置（推荐）
 
-如果不想手动创建 Conda 环境，直接双击项目根目录的 `install.command`。它会默认使用项目内的 `.venv`，自动安装 Python 依赖、构建 React 设置中心，并同步配置，因此不需要等待 Conda 下载。
+推荐直接双击项目根目录的 `start-react.command`。它会自动创建项目内的 `.venv`、安装 Python 依赖、安装或检查 pnpm、构建 React 设置中心、同步配置，然后启动网页界面；不需要手动创建 Conda 环境。
 
-设置完成后，双击 `start-react.command` 即可启动。首次运行前仍需先安装 Node.js 和 pnpm；如果终端提示找不到 pnpm，请先安装 Node.js LTS，再执行 `npm install --global pnpm@latest-11`。
+以后每次都只需要双击 `start-react.command`（或 `start.command`）。`install.command` 仍然保留，可用于单独执行准备步骤。首次运行前仍需安装 Node.js LTS；脚本会自动尝试安装 pnpm。
 
 > **macOS 首次运行**：如果双击提示「无法验证开发者」，请右键（或 Ctrl+点击）文件 → **打开**，在弹出的对话框中再次点 **打开** 即可。或者前往 **系统设置 → 隐私与安全性** 中允许。
 
