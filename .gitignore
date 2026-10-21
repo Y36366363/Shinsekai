@@ -96,6 +96,7 @@ node_modules/
 /.uv-cache
 /.pnpm-store/
 /temp/
+/runtime-services/
 /__pypackages__
 .python-version
 uv.lock

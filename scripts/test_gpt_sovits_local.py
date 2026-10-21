@@ -1,0 +1,49 @@
+"""Synthesize new Japanese lines before changing the working chat configuration."""
+import argparse
+import io
+import json
+import time
+import wave
+from pathlib import Path
+import requests
+
+ROOT = Path(__file__).resolve().parents[1]
+LINES = ['今日はどんな一日でしたか。よければ、私に聞かせてください。',
+         '無理をしないでくださいね。少し休んでから、一緒に考えましょう。']
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--reference', required=True, type=Path)
+    parser.add_argument('--transcript', required=True, help='Exact Japanese words in the reference')
+    args = parser.parse_args()
+    reference = args.reference.resolve(strict=True)
+    output = ROOT / 'temp/gpt-sovits-audition'
+    output.mkdir(parents=True, exist_ok=True)
+    session = requests.Session()
+    session.trust_env = False
+    results = []
+    for index, line in enumerate(LINES, 1):
+        start = time.monotonic()
+        response = session.post('http://127.0.0.1:9880/tts', json={
+            'text': line, 'text_lang': 'ja', 'ref_audio_path': str(reference),
+            'prompt_text': args.transcript, 'prompt_lang': 'ja',
+            'text_split_method': 'cut5', 'batch_size': 1,
+            'media_type': 'wav', 'streaming_mode': False,
+        }, timeout=600)
+        response.raise_for_status()
+        with wave.open(io.BytesIO(response.content)) as audio:
+            duration = audio.getnframes() / audio.getframerate()
+            if duration <= 0:
+                raise RuntimeError('Empty audio')
+        path = output / f'japanese-{index}.wav'
+        path.write_bytes(response.content)
+        result = {'text': line, 'seconds_to_generate': round(time.monotonic()-start, 2),
+                  'audio_seconds': round(duration, 2), 'path': str(path)}
+        results.append(result)
+        print(json.dumps(result, ensure_ascii=False))
+    (output / 'results.json').write_text(json.dumps(results, ensure_ascii=False, indent=2))
+
+
+if __name__ == '__main__':
+    main()
