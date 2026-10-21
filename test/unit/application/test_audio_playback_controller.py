@@ -151,8 +151,9 @@ def test_controller_does_not_start_audio_after_dispatch_was_interrupted() -> Non
 
 
 def test_frontend_backend_emits_ids_and_waits_for_external_signal() -> None:
+    dispatched = threading.Event()
     ui_updates = SimpleNamespace(
-        post_tts_play=MagicMock(),
+        post_tts_play=MagicMock(side_effect=lambda *args, **kwargs: dispatched.set()),
         post_tts_skip=MagicMock(),
     )
     backend = FrontendVoicePlaybackBackend(ui_updates)
@@ -160,6 +161,7 @@ def test_frontend_backend_emits_ids_and_waits_for_external_signal() -> None:
     thread, result = _start_playback(controller)
 
     assert thread.is_alive()
+    assert dispatched.wait(timeout=1)
     play_kwargs = ui_updates.post_tts_play.call_args.kwargs
     playback_id = play_kwargs["playback_id"]
     assert play_kwargs["volume"] == 1.0
@@ -171,12 +173,14 @@ def test_frontend_backend_emits_ids_and_waits_for_external_signal() -> None:
 
 
 def test_controller_rejects_terminal_signal_from_a_different_renderer() -> None:
+    dispatched = threading.Event()
     ui_updates = SimpleNamespace(
-        post_tts_play=MagicMock(),
+        post_tts_play=MagicMock(side_effect=lambda *args, **kwargs: dispatched.set()),
         post_tts_skip=MagicMock(),
     )
     controller = VoicePlaybackController(FrontendVoicePlaybackBackend(ui_updates))
     thread, result = _start_playback(controller)
+    assert dispatched.wait(timeout=1)
     playback_id = ui_updates.post_tts_play.call_args.kwargs["playback_id"]
 
     assert controller.handle_signal(
