@@ -94,6 +94,8 @@ node_modules/
 /.venv
 /venv
 /.uv-cache
+/.pnpm-store/
+/temp/
 /__pypackages__
 .python-version
 uv.lock
