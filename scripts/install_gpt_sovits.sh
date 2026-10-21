@@ -14,7 +14,7 @@ if [ ! -x runtime-services/gpt-sovits-env/bin/python ]; then
     python3 -m venv runtime-services/gpt-sovits-env
 fi
 runtime-services/gpt-sovits-env/bin/python -m pip install \
-    'torch==2.7.1' 'torchaudio==2.7.1' -r runtime-services/GPT-SoVITS/requirements.txt
+    'torch==2.7.1' 'torchaudio==2.7.1' 'resampy==0.4.3' -r runtime-services/GPT-SoVITS/requirements.txt
 runtime-services/gpt-sovits-env/bin/python scripts/prepare_gpt_sovits_models.py
 (
     cd runtime-services/GPT-SoVITS

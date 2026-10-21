@@ -4,6 +4,7 @@ from huggingface_hub import snapshot_download
 
 ROOT = Path(__file__).resolve().parents[1]
 if __name__ == '__main__':
+    (ROOT / 'runtime-services/GPT-SoVITS/GPT_SoVITS/pretrained_models/fast_langdetect').mkdir(parents=True, exist_ok=True)
     snapshot_download(
         'lj1995/GPT-SoVITS',
         revision='8f8857563c040d542de108a2c18b0425abd6c9c5',
