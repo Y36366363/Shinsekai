@@ -15,6 +15,47 @@ from application.chat.handlers.tts import (
 
 
 class TestDefaultCharacterTtsHandler:
+    @pytest.mark.parametrize("model_path", [None, ""])
+    def test_optional_model_paths_do_not_block_recorded_audio(
+        self, mock_app_runtime, monkeypatch, tmp_path, model_path
+    ):
+        from types import SimpleNamespace
+        from pathlib import Path
+        from plugins.kaguya_voicepack.plugin import KaguyaVoicepackAdapter
+        from plugins.kaguya_voicepack import plugin
+        import json
+        import wave
+
+        (tmp_path / 'wav').mkdir()
+        source = tmp_path / 'wav/test.wav'
+        with wave.open(str(source), 'wb') as audio:
+            audio.setparams((1, 2, 24000, 0, 'NONE', 'not compressed'))
+            audio.writeframes(b'\x01\x00' * 2400)
+        (tmp_path / 'reactions.json').write_text(json.dumps([
+            {'keywords': ['晚安'], 'file': 'test.wav'}
+        ]))
+        monkeypatch.setattr(plugin, 'PACK', tmp_path)
+        character = SimpleNamespace(
+            name='四宫辉夜', sovits_model_path=model_path, gpt_model_path=model_path,
+            refer_audio_path=None, prompt_text='', prompt_lang='zh',
+            sprites=[], speech_speed=1,
+        )
+        monkeypatch.setattr('application.chat.handlers.tts.get_character_by_name', lambda name: character)
+        runtime = mock_app_runtime
+        runtime.text_processor.remove_parentheses.side_effect = lambda text: text
+        monkeypatch.setattr('application.chat.handlers.tts._config', runtime.config)
+        runtime.config.config.api_config.tts_split_enabled = False
+        runtime.tts_manager = MagicMock()
+        adapter = KaguyaVoicepackAdapter()
+        output = tmp_path / 'output.wav'
+        runtime.tts_manager.generate_tts.side_effect = lambda text, **kw: adapter.generate_speech(text, output, **kw)
+        emit = MagicMock()
+        monkeypatch.setattr('application.chat.handlers.tts.tts_emit_to_ui_queue', emit)
+        DefaultCharacterTtsHandler().handle(LLMDialogMessage(name='四宫辉夜', text='晚安', asset_id=None))
+        runtime.tts_manager.generate_tts.assert_called_once()
+        assert Path(emit.call_args.args[3]).read_bytes() == source.read_bytes()
+        assert runtime.tts_manager.switch_model.call_args.args[0]['gpt_model_path'] == ''
+
     def test_can_handle_any_message(self, mock_app_runtime):
         """DefaultCharacterTtsHandler is the catch-all — always returns True."""
         handler = DefaultCharacterTtsHandler()

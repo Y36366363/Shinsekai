@@ -217,8 +217,14 @@ class DefaultCharacterTtsHandler(MessageHandler):
             try:
                 model_info = {
                     "character_name": name_s,
-                    "sovits_model_path": Path(character_config.sovits_model_path).resolve().as_posix(),
-                    "gpt_model_path": Path(character_config.gpt_model_path).resolve().as_posix(),
+                    "sovits_model_path": (
+                        Path(character_config.sovits_model_path).resolve().as_posix()
+                        if character_config.sovits_model_path else ""
+                    ),
+                    "gpt_model_path": (
+                        Path(character_config.gpt_model_path).resolve().as_posix()
+                        if character_config.gpt_model_path else ""
+                    ),
                 }
                 rt.tts_manager.switch_model(model_info)
                 print("TTSWorker: 使用模型", name_s, model_info)
