@@ -20,7 +20,7 @@ class Window(QMainWindow):
     def __init__(self, origin, windows):
         super().__init__()
         self.origin, self.windows = origin, windows
-        self.setWindowTitle('四宫辉夜 · 日常聊天（AI 合成语音）')
+        self.setWindowTitle('四宫辉夜 · 日常聊天')
         self.resize(1100, 800)
         self.view = QWebEngineView(self)
         self.view.setPage(Page(self.view.page().profile(), self.view, self))

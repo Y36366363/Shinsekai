@@ -1,4 +1,6 @@
 #!/bin/bash
 set -e
 cd "$(dirname "$0")/../../.."
-exec bash start-desktop.command
+# Terminal provides the normal macOS Documents-folder consent flow.
+# The desktop UI still opens in its own Qt window.
+exec /usr/bin/open -a Terminal "$PWD/start-desktop.command"
