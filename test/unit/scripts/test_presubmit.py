@@ -3,6 +3,21 @@ import subprocess
 from scripts import presubmit
 
 
+def test_python_checks_prefer_project_environment_with_spaces(tmp_path, monkeypatch):
+    root = tmp_path / 'Project With Spaces'
+    python = root / '.venv/bin/python'
+    python.parent.mkdir(parents=True)
+    python.touch()
+    monkeypatch.setattr(presubmit, 'ROOT', root)
+    monkeypatch.delenv('SHINSEKAI_PRESUBMIT_PYTHON', raising=False)
+    assert presubmit.python_test_command() == [str(python)]
+
+
+def test_explicit_python_override_is_preserved(monkeypatch):
+    monkeypatch.setenv('SHINSEKAI_PRESUBMIT_PYTHON', 'custom-python -I')
+    assert presubmit.python_test_command() == ['custom-python', '-I']
+
+
 def test_pre_push_commit_range_excludes_commits_reachable_from_any_remote(monkeypatch):
     calls: list[list[str]] = []
 

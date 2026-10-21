@@ -227,6 +227,9 @@ def python_test_command() -> list[str]:
     override = os.environ.get("SHINSEKAI_PRESUBMIT_PYTHON")
     if override:
         return shlex.split(override, posix=os.name != "nt")
+    for candidate in (ROOT / '.venv/bin/python', ROOT / '.venv/Scripts/python.exe'):
+        if candidate.is_file():
+            return [str(candidate)]
     return [sys.executable]
 
 
