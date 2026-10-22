@@ -15,6 +15,23 @@ from application.chat.handlers.tts import (
 
 
 class TestDefaultCharacterTtsHandler:
+    def test_japanese_translation_is_spoken_but_chinese_is_displayed(self, mock_app_runtime, monkeypatch):
+        runtime = mock_app_runtime
+        runtime.tts_manager = MagicMock()
+        runtime.tts_manager.generate_tts.return_value = 'voice.wav'
+        runtime.text_processor.remove_parentheses.side_effect = lambda value: value
+        runtime.text_processor.replace_names.side_effect = lambda value: value
+        runtime.config.config.api_config.tts_split_enabled = False
+        monkeypatch.setattr('application.chat.handlers.tts._config', runtime.config)
+        emit = MagicMock()
+        monkeypatch.setattr('application.chat.handlers.tts.tts_emit_to_ui_queue', emit)
+        DefaultCharacterTtsHandler().handle(LLMDialogMessage(
+            name='TestChar', text='欢迎回来。', translate='おかえりなさい。', asset_id=None))
+        assert runtime.tts_manager.generate_tts.call_args.args[0] == 'おかえりなさい。'
+        assert runtime.tts_manager.generate_tts.call_args.kwargs['text_processor'] is None
+        assert emit.call_args.args[1] == '欢迎回来。'
+        assert emit.call_args.args[3] == 'voice.wav'
+
     @pytest.mark.parametrize("model_path", [None, ""])
     def test_optional_model_paths_do_not_block_recorded_audio(
         self, mock_app_runtime, monkeypatch, tmp_path, model_path
