@@ -14,6 +14,7 @@ LINES = ['今日はどんな一日でしたか。よければ、私に聞かせ�
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--language', choices=('ja', 'en'), default='ja')
     parser.add_argument('--reference', required=True, type=Path)
     reference_text = parser.add_mutually_exclusive_group(required=True)
     reference_text.add_argument('--transcript', help='Exact Japanese words in the reference')
@@ -26,10 +27,14 @@ def main():
     session = requests.Session()
     session.trust_env = False
     results = []
-    for index, line in enumerate(LINES, 1):
+    lines = LINES if args.language == 'ja' else [
+        'Welcome back. How was your day?',
+        'You do not have to rush. Let us think about it together.',
+    ]
+    for index, line in enumerate(lines, 1):
         start = time.monotonic()
         response = session.post('http://127.0.0.1:9880/tts', json={
-            'text': line, 'text_lang': 'ja', 'ref_audio_path': str(reference),
+            'text': line, 'text_lang': args.language, 'ref_audio_path': str(reference),
             'prompt_text': args.transcript or '', 'prompt_lang': 'ja',
             'text_split_method': 'cut5', 'batch_size': 1,
             'media_type': 'wav', 'streaming_mode': False,
@@ -40,7 +45,8 @@ def main():
             duration = audio.getnframes() / audio.getframerate()
             if duration <= 0:
                 raise RuntimeError('Empty audio')
-        path = output / f'japanese-{index}.wav'
+        prefix = 'japanese' if args.language == 'ja' else 'english'
+        path = output / f'{prefix}-{index}.wav'
         path.write_bytes(response.content)
         result = {'text': line, 'seconds_to_generate': round(time.monotonic()-start, 2),
                   'audio_seconds': round(duration, 2), 'path': str(path),
@@ -48,7 +54,7 @@ def main():
                   'reference_only': args.reference_only}
         results.append(result)
         print(json.dumps(result, ensure_ascii=False))
-    (output / 'results.json').write_text(json.dumps(results, ensure_ascii=False, indent=2))
+    (output / f'results-{args.language}.json').write_text(json.dumps(results, ensure_ascii=False, indent=2))
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { characterDisplayName } from "./characterDisplayName";
 
 import { isTauriDesktop, setDesktopWindowAlwaysOnTop } from "../../shared/desktop/desktopApi";
 import { closeChatSurface } from "../../shared/desktop/chatWindow";
@@ -716,7 +717,7 @@ export function ChatStagePage() {
           ) : (
             <DialogLayer
               canAdvance={viewModel.layers.dialog && !typingDialog && dialogTotalCharacters > 0}
-              characterName={viewModel.dialogCharacterName}
+              characterName={characterDisplayName(viewModel.dialogCharacterName, viewModel.dialogText)}
               hidden={!viewModel.layers.dialog}
               htmlNodes={displayedDialog.nodes}
               onAdvance={advanceDialog}

@@ -35,3 +35,16 @@ def test_enable_preserves_settings_and_backs_up(tmp_path):
     assert yaml.safe_load((backup / 'api.yaml').read_text()) == original
     module.enable(tmp_path)
     assert (templates / '_temp.txt').read_text().count(module.RULE) == 1
+    module.enable(tmp_path, language='en')
+    session = json.loads((config / 'template_tab_last_launch.json').read_text())
+    assert session['voice_lang'] == 'en'
+    assert 'translate 不得包含中文' in session['system_template_text']
+    assert '自动英语配音' in session['system_template_text']
+    assert '自动日语配音' not in session['system_template_text']
+    character = yaml.safe_load((config / 'characters.yaml').read_text())[0]
+    assert character['name'] == '四宫辉夜'
+    assert character['prompt_lang'] == 'ja'
+    module.enable(tmp_path, language='zh')
+    session = json.loads((config / 'template_tab_last_launch.json').read_text())
+    assert session['voice_lang'] == 'ja'
+    assert '自动英语配音' not in session['system_template_text']

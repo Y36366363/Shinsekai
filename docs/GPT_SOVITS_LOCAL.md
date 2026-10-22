@@ -1,5 +1,17 @@
 # 独立 GPT-SoVITS 服务（试听阶段）
 
+## 英文课堂切换
+
+先关闭旧聊天，再双击项目中的 `English-Classroom.command`，完成后重新打开“辉夜聊天”，开始新聊天。
+该模式使用英文正文、英文配音。双击 `Chinese-Chat.command` 可恢复中文正文、日语配音。
+两种模式都保留角色内部名字“四宫辉夜”，避免破坏记忆、立绘与语音匹配。
+英文台词（包含英文字母且不含中日文字）在聊天名牌及历史中显示为 `Kaguya Shinomiya`；中文台词保留原名。
+这是显示别名，不改变模型返回的 character_name。
+
+英文合成仍使用已试听的日语参考录音，参考语言保持 ja，目标语言为 en。
+英文接口已实测生成两句 WAV，发音和音色需人工试听，不保证与日语同样自然。
+试听文件：`temp/gpt-sovits-audition/english-1.wav`、`english-2.wav`，均为 AI 合成。
+
 ## 自动配音（2026-10-22）
 
 已试听满意后，可运行 `.venv/bin/python scripts/enable_kaguya_speech.py` 启用。

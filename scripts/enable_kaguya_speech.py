@@ -1,5 +1,6 @@
 """Enable the auditioned local voice; back up configuration before changing it."""
 import json
+import argparse
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -15,7 +16,11 @@ translate 不得包含中文、舞台动作或解释。sprite 仍按情绪选择
 """
 
 
-def enable(root=ROOT):
+def enable(root=ROOT, language='zh'):
+    if language not in ('zh', 'en'):
+        raise ValueError('Unsupported classroom language')
+    rule = RULE if language == 'zh' else RULE.replace('中文', '英文').replace('简体英文', '英文').replace('日语', '英语').replace('translate 不得包含英文', 'translate 不得包含中文')
+    voice_language = 'ja' if language == 'zh' else 'en'
     data = root / 'data'
     ref = data / 'voicepacks/kaguya-rainbow/wav/time_noon2.wav'
     if not ref.is_file():
@@ -40,21 +45,25 @@ def enable(root=ROOT):
     for sprite in character.get('sprites', []):
         for key in ('voice_type', 'voice_text', 'voice_path'):
             sprite.pop(key, None)
-    system['voice_language'] = 'ja'
-    session.update(voice_lang='ja', use_tr_yes=True, use_choice_yes=False,
+    system['voice_language'] = voice_language
+    session.update(voice_lang=voice_language, use_tr_yes=True, use_choice_yes=False,
                    use_narration_yes=False, use_stat_yes=False)
     for mapping, key in ((session, 'system_template_text'), (meta, 'system')):
-        if RULE not in mapping.get(key, ''):
-            mapping[key] = mapping.get(key, '').rstrip() + '\n\n' + RULE
+        base = mapping.get(key, '')
+        for marker in ('【日常聊天与自动日语配音：', '【日常聊天与自动英语配音：'):
+            base = base.split(marker, 1)[0]
+        mapping[key] = base.rstrip() + '\n\n' + rule
     for path, value in zip(paths[:3], (api, characters, system)):
         path.write_text(yaml.safe_dump(value, allow_unicode=True, sort_keys=False), encoding='utf-8')
     paths[3].write_text(json.dumps(session, ensure_ascii=False, indent=2), encoding='utf-8')
     paths[5].write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding='utf-8')
     paths[4].write_text('<<<EASYAI_USER_SCENARIO>>>\n' + meta['scenario'] +
                        '\n<<<EASYAI_SYSTEM_TEMPLATE>>>\n' + meta['system'] + '\n', encoding='utf-8')
-    print('已启用中文显示、日语自动配音。请关闭旧聊天并重新打开辉夜聊天。')
+    print('已启用' + ('英文显示、英文配音' if language == 'en' else '中文显示、日语配音') + '。请关闭旧聊天并重新打开辉夜聊天。')
     print(f'原配置备份：{backup}')
 
 
 if __name__ == '__main__':
-    enable()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--language', choices=('zh', 'en'), default='zh')
+    enable(language=parser.parse_args().language)

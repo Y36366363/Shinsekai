@@ -5,6 +5,7 @@ import type { ChatHistoryEntry } from "../../../shared/platform/types";
 import { Button } from "../../../shared/ui";
 import { useI18n } from "../../../shared/i18n";
 import { ChatStageModal } from "./ChatStageModal";
+import { characterDisplayName } from "../characterDisplayName";
 
 const defaultUserDisplayName = "你";
 const hiddenSystemHistorySpeakers = new Set(["scene", "场景", "bgm"]);
@@ -268,7 +269,7 @@ export function HistoryDialog({
                   <header className="chat-history__entry-header">
                     <div className="chat-history__nameplate">
                       <span aria-hidden className="chat-history__nameplate-accent" />
-                      <span className="chat-history__speaker">{dialog.speaker}</span>
+                      <span className="chat-history__speaker">{characterDisplayName(dialog.speaker, dialog.body)}</span>
                       <span className="chat-history__role">{roleLabels[entry.role]}</span>
                     </div>
                     <div className="chat-history__meta">
